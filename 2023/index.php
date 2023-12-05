@@ -46,7 +46,7 @@ function day2()
             $total += $gameId;
         }
     }
-    return $totalP2;
+    return 'Day 02:<br>Part 1:' . $total . '<br>' . 'Part2: ' . $totalP2 . '<br>';
 }
 
 function day3()
@@ -154,6 +154,25 @@ function checkIfIsGear(array $gears, array $prevRow, array $currentRow, array $n
     return $total;
 }
 
+function day4() {
+    $input = getFileContent('04');
+$total = 0;
+    foreach ($input as $row) {
+        [$cardNumber, $cards] = explode(':', $row);
+        [$winningCardsSets, $myCardsSets] = explode('|', $cards);
+        preg_match_all('/[\\d]+/', $winningCardsSets, $winningCards);
+        preg_match_all('/[\\d]+/', $myCardsSets, $myCards);
+        $winning = reset($winningCards);
+        $my = reset($myCards);
+        $mateches = array_intersect($winning, $my);
+        $matchesAmount = count($mateches) - 1;
+        $total += floor(pow(2, $matchesAmount));
+    }
+
+    return $total;
+}
+
 //echo day1();
 //echo day2();
-echo day3();
+//echo day3();
+echo day4();
