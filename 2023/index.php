@@ -1044,6 +1044,27 @@ function day14()
     return calcWeight($caMatrix[$searchIndex]);
 }
 
+function day15()
+{
+    $input = getFileContent('15');
+    $rows = explode(',', reset($input));
+    $multiplier = 17;
+    $divisor = 256;
+    $total = 0;
+    foreach ($rows as $row) {
+        $currentValue = 0;
+        $chars = str_split($row);
+        foreach ($chars as $char) {
+            $currentValue += ord($char);
+            $currentValue *= $multiplier;
+            $currentValue %= $divisor;
+        }
+        $total += $currentValue;
+    }
+
+    return $total;
+}
+
 function tilt(array $input)
 {
     $stringInput = implode('', $input);
@@ -1094,4 +1115,5 @@ function calcWeight(array $matrix)
 //echo day11();
 //echo day12();
 //echo day13();
-echo day14();
+//echo day14();
+echo day15();
