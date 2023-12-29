@@ -163,19 +163,42 @@ function day4()
 {
     $input = getFileContent('04');
     $total = 0;
+    $todo = [];
     foreach ($input as $row) {
-        [$cardNumber, $cards] = explode(':', $row);
+        [$cardNumberName, $cards] = explode(':', $row);
+        preg_match('/[\\d]+/', $cardNumberName, $cardNumber);
+        $cardId = (int)reset($cardNumber);
         [$winningCardsSets, $myCardsSets] = explode('|', $cards);
         preg_match_all('/[\\d]+/', $winningCardsSets, $winningCards);
         preg_match_all('/[\\d]+/', $myCardsSets, $myCards);
-        $winning = reset($winningCards);
-        $my = reset($myCards);
-        $mateches = array_intersect($winning, $my);
-        $matchesAmount = count($mateches) - 1;
-        $total += floor(pow(2, $matchesAmount));
+        $winning = getCards($winningCardsSets);
+        $my = getCards($myCardsSets);
+        $matches = array_intersect($winning, $my);
+        $matchesAmount = count($matches);
+        $cardMatrix[$cardId] = [$winning, $my, 'matches' => $matchesAmount, 'touches' => 0];
+        //p1
+//        $total += floor(pow(2, $matchesAmount - 1));
+        $todo[] = $cardId;
+    }
+
+    foreach ($todo as $card) {
+        for ($j = 0; $j <= $cardMatrix[$card]['touches']; $j++) {
+            for ($i = 1; $i <= $cardMatrix[$card]['matches']; $i++) {
+                $cardMatrix[$card + $i]['touches']++;
+            }
+        }
+        $cardMatrix[$card]['touches']++;
+        $total += $cardMatrix[$card]['touches'];
     }
 
     return $total;
+}
+
+function getCards(string $cardSet)
+{
+    preg_match_all('/[\\d]+/', $cardSet, $cards);
+
+    return reset($cards);
 }
 
 //echo day1();
