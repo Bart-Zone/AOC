@@ -976,6 +976,111 @@ function day13()
     return $sum;
 }
 
+function day14()
+{
+    $input = getFileContent('14');
+
+    $matrix = [];
+    foreach ($input as $row) {
+        $matrix[] = str_split($row);
+    }
+    $columnsCount = count($matrix[0]);
+
+    $directions = [
+        'north',
+        'west',
+        'south',
+        'east'
+    ];
+
+    $rounds = 1000000000;
+    $calculatedMatrix = [];
+    $cycle = [];
+    for ($k = 1; $k < $rounds; $k++) {
+        foreach ($directions as $direction) {
+            $columns = [];
+            switch ($direction) {
+                case 'north':
+                    for ($i = 0; $i < $columnsCount; $i++) {
+                        $columns[] = tilt(array_column($matrix, $i));
+                    }
+                    break;
+                case 'west':
+                    foreach ($matrix as &$row) {
+                        $row = tilt($row);
+                    }
+                    break;
+                case 'south':
+                    for ($i = 0; $i < $columnsCount; $i++) {
+                        $columns[] = array_reverse(tilt(array_reverse(array_column($matrix, $i))));
+                    }
+                    break;
+                case 'east':
+                    foreach ($matrix as &$row) {
+                        $row = array_reverse(tilt(array_reverse($row)));
+                    }
+                    break;
+            }
+
+            foreach ($columns as $columnKey => $columnsCell) {
+                foreach ($columnsCell as $rowKey => $cell) {
+                    $matrix[$rowKey][$columnKey] = $cell;
+                }
+            }
+        }
+        $caMatrix[$k] = $matrix;
+        $matrixHash = md5(serialize($matrix));
+        if (array_key_exists($matrixHash, $cycle)) {
+            $t = $k - count($cycle);
+            $searchIndex = ($rounds - $t) % ($k - $t) + $t;
+            break;
+        }
+        if (in_array($matrixHash, $calculatedMatrix)) {
+            $cycle[$matrixHash] = $k;
+        } else {
+            $calculatedMatrix[$k] = $matrixHash;
+        }
+    }
+    return calcWeight($caMatrix[$searchIndex]);
+}
+
+function tilt(array $input)
+{
+    $stringInput = implode('', $input);
+    preg_match_all('/([O.]*)#?/', $stringInput, $matches, PREG_OFFSET_CAPTURE);
+    $roundedRocks = array_pop($matches);
+    $offset = 0;
+    foreach ($roundedRocks as $roundRock) {
+        $roundRocksCount = substr_count($roundRock[0], 'O');
+        if ($roundRocksCount > 0) {
+            $firstP = array_fill($offset, $roundRocksCount, 'O');
+            $secondP = array_fill($offset + $roundRocksCount, strlen($roundRock[0]) - $roundRocksCount, '.');
+            $newSub = $firstP + $secondP;
+            $input = array_replace($input, $newSub);
+        }
+        $offset += strlen($roundRock[0]) + 1;
+    }
+
+    return $input;
+}
+
+function calcWeight(array $matrix)
+{
+    $revMatrix = array_reverse($matrix);
+    $sum = 0;
+    foreach ($revMatrix as $rowKey => $row) {
+        $result = array_count_values($row);
+        foreach ($result as $value => $count) {
+            if ($value == 'O') {
+                $sum += $count * ($rowKey + 1);
+                continue 2;
+            }
+        }
+    }
+
+    return $sum;
+}
+
 //echo day1();
 //echo day2();
 //echo day3();
@@ -988,4 +1093,5 @@ function day13()
 //echo day10();
 //echo day11();
 //echo day12();
-echo day13();
+//echo day13();
+echo day14();
