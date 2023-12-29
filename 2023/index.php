@@ -681,6 +681,133 @@ function getNextRow(array $numbers): array
     return $nextRow;
 }
 
+function day10()
+{
+    $input = getFileContent('10');
+    $startPoint = [];
+    $rowKey = 0;
+    foreach ($input as $rowKey => $row) {
+        if (preg_match('/S/', $row, $match, PREG_OFFSET_CAPTURE)) {
+            $startPoint = reset($match);
+            break;
+        }
+    }
+    $matrix = $input;
+    $p = $startPoint[1];
+    $prevCell = $input[$rowKey][$p - 1];
+    $nextCell = $input[$rowKey][$p + 1];
+    $aboveCell = $input[$rowKey - 1][$p];
+    $downCell = $input[$rowKey + 1][$p];
+    $neighbours = [];
+    $leftSite = ['-' => 0, 'L' => 1, 'F' => -1];
+    $rightSite = ['-' => 0, 'J' => 1, '7' => -1,];
+    $upSite = ['|' => 0, 'F' => 1, '7' => -1];
+    $downSite = ['|' => 0, 'L' => 1, 'J' => -1];
+    $matrix[$rowKey][$p] = 'B';
+    $possibleStart = [];
+    if (key_exists($prevCell, $leftSite)) {
+        $neighbours[] = ['y' => $rowKey, 'x' => $p - 1, 'letter' => $prevCell, 'prev' => ['x' => $p, 'y' => $rowKey]];
+        $possibleStart = array_merge($possibleStart, array_keys($rightSite));
+    }
+    if (key_exists($nextCell, $rightSite)) {
+        $neighbours[] = ['y' => $rowKey, 'x' => $p + 1, 'letter' => $nextCell, 'prev' => ['x' => $p, 'y' => $rowKey]];
+        $possibleStart = array_merge($possibleStart, array_keys($leftSite));
+    }
+    if (key_exists($aboveCell, $upSite)) {
+        $neighbours[] = ['y' => $rowKey - 1, 'x' => $p, 'letter' => $aboveCell, 'prev' => ['x' => $p, 'y' => $rowKey]];
+        $possibleStart = array_merge($possibleStart, array_keys($downSite));
+    }
+    if (key_exists($downCell, $downSite)) {
+        $neighbours[] = ['y' => $rowKey + 1, 'x' => $p, 'letter' => $downCell, 'prev' => ['x' => $p, 'y' => $rowKey]];
+        $possibleStart = array_merge($possibleStart, array_keys($upSite));
+    }
+
+    $possibleStart = array_count_values($possibleStart);
+
+    arsort($possibleStart);
+    $start = key($possibleStart);
+    $input[$rowKey][$p] = $start;
+    $steps = 1;
+    $neighboursCount = 0;
+    while ($neighbour = array_shift($neighbours)) {
+        $next = getNextCell($neighbour);
+        $next['letter'] = $input[$next['y']][$next['x']];
+        $current = reset($neighbours);
+        $steps = $steps + $neighboursCount % 2;
+        $matrix[$neighbour['y']][$neighbour['x']] = 'B';
+        if ($current['x'] === $next['x'] && $current['y'] === $next['y']) {
+            $matrix[$current['y']][$current['x']] = 'B';
+            break;
+        }
+        $neighbours[] = $next;
+        $neighboursCount++;
+    }
+    $i = 0;
+    foreach ($matrix as $y => $row) {
+        $cells = str_split($row);
+        $outSide = true;
+        $entryLetter = '';
+        foreach ($cells as $x => $cell) {
+            if ($cell === 'B') {
+                $originCell = $input[$y][$x];
+                if (in_array($originCell, ['F', 'L'])) {
+                    $entryLetter = $originCell;
+                } elseif (in_array($originCell, ['J', '7'])) {
+                    if (
+                        ($entryLetter === 'F' && $originCell === 'J')
+                        || ($entryLetter === 'L' && $originCell == '7')
+                    ) {
+                        $outSide = !$outSide;
+                    }
+                } elseif ($originCell === '|') {
+                    $outSide = !$outSide;
+                }
+            } else {
+                if (!$outSide) {
+                    $i++;
+                }
+            }
+        }
+    }
+
+    return $i;
+}
+
+function getNextCell($currentCell): array
+{
+    $prevCell = $currentCell['prev'];
+    $y = $currentCell['y'];
+    $x = $currentCell['x'];
+    $diffX = $currentCell['x'] - $prevCell['x'];
+    $diffY = $currentCell['y'] - $prevCell['y'];
+    switch ($currentCell['letter']) {
+        case '-':
+            $x = $currentCell['x'] + ($diffX);
+            break;
+        case 'L':
+            $y = $currentCell['y'] - abs($diffX);
+            $x = $currentCell['x'] + abs($diffY);
+            break;
+        case 'J':
+            $y = $currentCell['y'] - abs($diffX);
+            $x = $currentCell['x'] - abs($diffY);
+            break;
+        case '7':
+            $y = $currentCell['y'] + abs($diffX);
+            $x = $currentCell['x'] - abs($diffY);
+            break;
+        case 'F':
+            $y = $currentCell['y'] + abs($diffX);
+            $x = $currentCell['x'] + abs($diffY);
+            break;
+        case '|':
+            $y = $currentCell['y'] + ($diffY);
+            break;
+    }
+
+    return ['x' => $x, 'y' => $y, 'prev' => $currentCell];
+}
+
 //echo day1();
 //echo day2();
 //echo day3();
@@ -689,4 +816,5 @@ function getNextRow(array $numbers): array
 //echo day6();
 //echo day7();
 //echo day8();
-echo day9();
+//echo day9();
+echo day10();
