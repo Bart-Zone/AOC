@@ -201,7 +201,266 @@ function getCards(string $cardSet)
     return reset($cards);
 }
 
+function day5()
+{
+    $input = getFileContent('05');
+    preg_match_all('/[\\d]+/', $input[0], $seeds);
+    preg_match_all('/[\\d]+ [\\d]+/', $input[0], $seedPairs);
+    $seeds = reset($seeds);
+    $seedPairs = reset($seedPairs);
+    $seedToSoilMapStartKey = array_search('seed-to-soil map:', $input) + 1;
+    $soilToFertilizerMapStartKey = array_search('soil-to-fertilizer map:', $input) + 1;
+    $fertilizerToWaterMapKeyStart = array_search('fertilizer-to-water map:', $input) + 1;
+    $waterToLightMapStartKey = array_search('water-to-light map:', $input) + 1;
+    $lightToTemperatureMapKeyStart = array_search('light-to-temperature map:', $input) + 1;
+    $temperatureToHumidityMapKeyStart = array_search('temperature-to-humidity map:', $input) + 1;
+    $humidityToLocationMapKeyStart = array_search('humidity-to-location map:', $input) + 1;
+    $seedToSoil = array_slice(
+        $input,
+        $seedToSoilMapStartKey,
+        $soilToFertilizerMapStartKey - $seedToSoilMapStartKey - 2
+    );
+    $soilToFertilizer = array_slice(
+        $input,
+        $soilToFertilizerMapStartKey,
+        $fertilizerToWaterMapKeyStart - $soilToFertilizerMapStartKey - 2
+    );
+    $fertilizerToWater = array_slice(
+        $input,
+        $fertilizerToWaterMapKeyStart,
+        $waterToLightMapStartKey - $fertilizerToWaterMapKeyStart - 2
+    );
+    $waterToLight = array_slice(
+        $input,
+        $waterToLightMapStartKey,
+        $lightToTemperatureMapKeyStart - $waterToLightMapStartKey - 2
+    );
+    $lightToTemperature = array_slice(
+        $input,
+        $lightToTemperatureMapKeyStart,
+        $temperatureToHumidityMapKeyStart - $lightToTemperatureMapKeyStart - 2
+    );
+    $temperatureToHumidity = array_slice(
+        $input,
+        $temperatureToHumidityMapKeyStart,
+        $humidityToLocationMapKeyStart - $temperatureToHumidityMapKeyStart - 2
+    );
+    $humidityToLocation = array_slice($input, $humidityToLocationMapKeyStart);
+    $maps = [];
+    $seedToSoilMap = [];
+    foreach ($seedToSoil as $row) {
+        [$destinationStart, $start, $steps] = explode(' ', $row);
+        $seedToSoilMap[] = [
+            'name' => 'seedToSoil',
+            'start' => (int)$start,
+            'end' => $start + $steps - 1,
+            'destiStart' => (int)$destinationStart,
+            'destiEnd' => $destinationStart + $steps - 1,
+            'steps' => (int)$steps
+        ];
+    }
+    $maps[] = $seedToSoilMap;
+
+    $soilToFertilizerMap = [];
+    foreach ($soilToFertilizer as $row) {
+        [$destinationStart, $start, $steps] = explode(' ', $row);
+        $soilToFertilizerMap[] = [
+            'name' => 'soilToFertilizer',
+            'start' => (int)$start,
+            'end' => $start + $steps - 1,
+            'destiStart' => (int)$destinationStart,
+            'destiEnd' => $destinationStart + $steps - 1,
+            'steps' => (int)$steps
+        ];
+    }
+    $maps[] = $soilToFertilizerMap;
+
+    $fertilizerToWaterMap = [];
+    foreach ($fertilizerToWater as $row) {
+        [$destinationStart, $start, $steps] = explode(' ', $row);
+        $fertilizerToWaterMap[] = [
+            'name' => 'fertilizerToWater',
+            'start' => (int)$start,
+            'end' => $start + $steps - 1,
+            'destiStart' => (int)$destinationStart,
+            'destiEnd' => $destinationStart + $steps - 1,
+            'steps' => (int)$steps
+        ];
+    }
+    $maps[] = $fertilizerToWaterMap;
+
+    $waterToLightMap = [];
+    foreach ($waterToLight as $row) {
+        [$destinationStart, $start, $steps] = explode(' ', $row);
+        $waterToLightMap[] = [
+            'name' => 'waterToLight',
+            'start' => (int)$start,
+            'end' => $start + $steps - 1,
+            'destiStart' => (int)$destinationStart,
+            'destiEnd' => $destinationStart + $steps - 1,
+            'steps' => (int)$steps
+        ];
+    }
+    $maps[] = $waterToLightMap;
+
+    $lightToTemperatureMap = [];
+    foreach ($lightToTemperature as $row) {
+        [$destinationStart, $start, $steps] = explode(' ', $row);
+        $lightToTemperatureMap[] = [
+            'name' => 'lightToTemperature',
+            'start' => (int)$start,
+            'end' => $start + $steps - 1,
+            'destiStart' => (int)$destinationStart,
+            'destiEnd' => $destinationStart + $steps - 1,
+            'steps' => (int)$steps
+        ];
+    }
+    $maps[] = $lightToTemperatureMap;
+
+    $temperatureToHumidityMap = [];
+    foreach ($temperatureToHumidity as $row) {
+        [$destinationStart, $start, $steps] = explode(' ', $row);
+        $temperatureToHumidityMap[] = [
+            'name' => 'temperatureToHumidity',
+            'start' => (int)$start,
+            'end' => $start + $steps - 1,
+            'destiStart' => (int)$destinationStart,
+            'destiEnd' => $destinationStart + $steps - 1,
+            'steps' => (int)$steps
+        ];
+    }
+    $maps[] = $temperatureToHumidityMap;
+
+    $humidityToLocationMap = [];
+    foreach ($humidityToLocation as $row) {
+        [$destinationStart, $start, $steps] = explode(' ', $row);
+        $humidityToLocationMap[] = [
+            'name' => 'humidityToLocation',
+            'start' => (int)$start,
+            'end' => $start + $steps - 1,
+            'destiStart' => (int)$destinationStart,
+            'destiEnd' => $destinationStart + $steps - 1,
+            'steps' => (int)$steps
+        ];
+    }
+    $maps[] = $humidityToLocationMap;
+    $usedLastPointer = [];
+
+//    foreach ($seeds as $seed) {
+    foreach ($seedPairs as $seedPair) {
+//    $pointer = $seed;
+
+        [$pointerStart, $steps] = explode(' ', $seedPair);
+        $pointerEnd = $pointerStart + $steps - 1;
+        $pointers = [['start' => (int)$pointerStart, 'end' => (int)$pointerEnd]];
+        foreach ($maps as $map) {
+            $intersection = [];
+            $leftSubset = [];
+            $rightSubset = [];
+            $pointersCopy = array_unique($pointers, SORT_REGULAR);
+            $pointers = [];
+            while ($pointer = array_pop($pointersCopy)) //            foreach ($pointersCopy as $pointer) {
+            {
+                $noMatch = true;
+
+                foreach ($map as $entry) {
+//                if ($pointer >= $entry['start'] && $pointer <= $entry['end']) {
+//                    $diff = $pointer - $entry['start'];
+//                    $pointer = $entry['destiStart'] + $diff;
+//                    continue 2;
+//                }
+                    getIntersection($pointer, $entry, $intersection, $leftSubset, $rightSubset);
+
+                    if (!empty($intersection)) {
+                        $startDiff = $intersection['start'] - $entry['start'];
+                        $endDiff = $intersection['end'] - $entry['end'];
+                        $pointers[] = [
+                            'start' => $entry['destiStart'] + $startDiff,
+                            'end' => $entry['destiEnd'] + $endDiff
+                        ];
+                        $noMatch = false;
+                    }
+                    if (!empty($leftSubset)) {
+                        $pointersCopy[] = [
+                            'start' => $leftSubset['start'],
+                            'end' => $leftSubset['end']
+                        ];
+                    }
+                    if (!empty($rightSubset)) {
+                        $pointersCopy[] = [
+                            'start' => $rightSubset['start'],
+                            'end' => $rightSubset['end']
+                        ];
+                    }
+                }
+                if ($noMatch) {
+                    $pointers[] = $pointer;
+                }
+            }
+        }
+        $usedLastPointer[] = $pointers;
+//        $usedLastPointer[] = $pointerStart;
+
+    }
+    $lowestPointer = [];
+    foreach ($usedLastPointer as $pointer) {
+        foreach ($pointer as $entry) {
+            $lowestPointer[] = $entry['start'];
+        }
+    }
+    sort($lowestPointer);
+    return $lowestPointer[0];
+}
+
+function getIntersection(
+    array $leftRange,
+    array $rightRange,
+    array &$intersect,
+    array &$leftSubset,
+    array &$rightSubset
+) {
+    $intersect = [];
+    $leftSubset = [];
+    $rightSubset = [];
+
+    if ($leftRange['start'] < $rightRange['start']) {
+        if ($leftRange['end'] < $rightRange['start']) {
+            // no intersection
+//            $leftSubset = $leftRange;
+        } elseif ($leftRange['end'] <= $rightRange['end']) {
+            // subset on left side and intersection
+            $leftSubset['start'] = $leftRange['start'];
+            $leftSubset['end'] = $rightRange['start'] - 1;
+            $intersect['start'] = $rightRange['start'];
+            $intersect['end'] = $leftRange['end'];
+        } else {
+            //subset on left side intersection and subset on right side
+            $leftSubset['start'] = $leftRange['start'];
+            $leftSubset['end'] = $rightRange['start'] - 1;
+            $intersect['start'] = $rightRange['start'];
+            $intersect['end'] = $rightRange['end'];
+            $rightSubset['start'] = $rightRange['end'] + 1;
+            $rightSubset['end'] = $leftRange['end'];
+        }
+    } else {
+        if ($leftRange['start'] > $rightRange['end']) {
+            //no intersection,
+//            $leftSubset = $leftRange;
+        } elseif ($leftRange['end'] <= $rightRange['end']) {
+            // intersection
+            $intersect = $leftRange;
+        } else {
+            //intersection and right subset
+            $intersect['start'] = $leftRange['start'];
+            $intersect['end'] = $rightRange['end'];
+            $rightSubset['start'] = $rightRange['end'] + 1;
+            $rightSubset['end'] = $leftRange['end'];
+        }
+    }
+}
+
 //echo day1();
 //echo day2();
 //echo day3();
-echo day4();
+//echo day4();
+echo day5();
