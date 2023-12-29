@@ -916,6 +916,66 @@ function day12()
     return "Only a try, no result";
 }
 
+function day13()
+{
+    $input = getFileContent('13');
+    $group = [];
+    $groups = [];
+    foreach ($input as $row) {
+        if ($row === '') {
+            $groups[] = $group;
+            $group = [];
+        } else {
+            $group[] = str_split($row);
+        }
+    }
+    $groups[] = $group;
+    $sum = 0;
+    foreach ($groups as $group) {
+        $columns = [];
+        $rowSize = count($group[0]);
+        for ($x = 0; $x < $rowSize; $x++) {
+            $columns[] = array_column($group, $x);
+        }
+        $multiplication = 100;
+        $flippedC = 0;
+        foreach ([$group, $columns] as $pattern) {
+            $patternSize = count($pattern);
+            for ($y = 0; $y < $patternSize - 1; $y++) {
+                $diffPattern = implode('', $pattern[$y]) & implode('', $pattern[$y + 1]);
+                $diffCount = substr_count($diffPattern, '"');
+                if ($diffCount <= 1) {
+                    $flipped = (bool)$diffCount;
+//                if ($pattern[$y] == $pattern[$y + 1]) {
+                    for ($i = $y - 1, $k = $y + 2; $i >= 0 && $k < $patternSize; $i--, $k++) {
+                        $diffNextPattern = implode('', $pattern[$i]) & implode('', $pattern[$k]);
+                        $nextDiffCount = substr_count($diffNextPattern, '"');
+                        $flippCount = $nextDiffCount + $diffCount;
+                        if ($flippCount === 1) {
+                            $flipped = true;
+                        }
+
+                        if ($flippCount > 1) {
+//                        if ($pattern[$i] != $pattern[$k]) {
+                            continue 2;
+                        }
+                    }
+                    if (!$flipped) {
+                        continue;
+                    }
+                    $sum += ($y + 1) * $multiplication;
+                    continue 3;
+                }
+            }
+
+            $multiplication = 1;
+            $flippedC++;
+        }
+    }
+
+    return $sum;
+}
+
 //echo day1();
 //echo day2();
 //echo day3();
@@ -927,4 +987,5 @@ function day12()
 //echo day9();
 //echo day10();
 //echo day11();
-echo day12();
+//echo day12();
+echo day13();
