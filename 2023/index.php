@@ -485,9 +485,97 @@ function day6()
     return array_product($allPossibility);
 }
 
+function day7()
+{
+    $input = getFileContent('07');
+    $onePair = [];
+    $twoPair = [];
+    $three = [];
+    $four = [];
+    $five = [];
+    $highCard = [];
+    $fullHouse = [];
+    $sequenz = [
+        'A' => 55,
+        'K' => 45,
+        'Q' => 35,
+        'J' => 1,
+        'T' => 15
+    ];
+
+    foreach ($input as $row) {
+        [$cardHand, $bid] = explode(' ', $row);
+        $cards = str_split($cardHand);
+        $diffValues = array_count_values($cards);
+        arsort($diffValues);
+        foreach ($cards as &$card) {
+            if (ord($card) >= 65) {
+                $card = $sequenz[$card];
+            }
+            $card = (int)$card;
+        }
+        $differentCards = count(array_unique($cards));
+        if (in_array(1, $cards) && count($diffValues) > 1) {
+            $differentCards--;
+            $plusAmount = $diffValues['J'];
+            unset($diffValues['J']);
+            arsort($diffValues);
+            $maxCard = key($diffValues);
+            $diffValues[$maxCard] += $plusAmount;
+        }
+        switch ($differentCards) {
+            case 1: //five of Card
+                $five[$bid] = $cards;
+                break;
+            case 2: // four of a kind or fullhouse
+                if (max($diffValues) == 3) {
+                    $fullHouse[$bid] = $cards;
+                } else {
+                    $four[$bid] = $cards;
+                }
+                break;
+            case 3: // two pairs or three of a kind
+                if (max($diffValues) == 3) {
+                    $three[$bid] = $cards;
+                } else {
+                    $twoPair[$bid] = $cards;
+                }
+                break;
+            case 4: // one pair
+                $onePair[$bid] = $cards;
+                break;
+            case 5: //high card
+                $highCard[$bid] = $cards;
+                break;
+        }
+    }
+    asort($five);
+    asort($four);
+    asort($fullHouse);
+    asort($three);
+    asort($twoPair);
+    asort($onePair);
+    asort($highCard);
+
+    $i = 1;
+    $total = 0;
+    $results = [$highCard, $onePair, $twoPair, $three, $fullHouse, $four, $five];
+    foreach ($results as $result) {
+        reset($result);
+
+        foreach ($result as $bid => $hand) {
+            $total += $bid * $i;
+            $i++;
+        }
+    }
+
+    return $total;
+}
+
 //echo day1();
 //echo day2();
 //echo day3();
 //echo day4();
 //echo day5();
-echo day6();
+//echo day6();
+echo day7();
