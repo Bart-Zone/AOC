@@ -459,8 +459,35 @@ function getIntersection(
     }
 }
 
+function day6()
+{
+    $input = getFileContent('06');
+
+//    preg_match_all('/[\\d]+/', $input[0], $times);
+//    preg_match_all('/[\\d]+/', $input[1], $distances);
+//    $times = reset($times);
+//    $distances = reset($distances);
+    $times = [preg_filter('/[^\\d]+/', '', $input[0])];
+    $distances = [preg_filter('/[^\\d]+/', '', $input[1])];
+    $allPossibility = [];
+    foreach ($times as $race => $time) {
+        $possibilities = $time + 1 - 2;
+        $validPossibilities = 0;
+        for ($i = 1; $i <= $possibilities / 2; $i++) {
+            $millSec = $i * ($time - $i);
+            if ($millSec > $distances[$race]) {
+                $validPossibilities++;
+            }
+        }
+        $allPossibility[] = $validPossibilities * 2 + ($time + 1) % 2;
+    }
+
+    return array_product($allPossibility);
+}
+
 //echo day1();
 //echo day2();
 //echo day3();
 //echo day4();
-echo day5();
+//echo day5();
+echo day6();
