@@ -572,10 +572,74 @@ function day7()
     return $total;
 }
 
+function day8()
+{
+    $input = getFileContent('08');
+    $instructions = str_split(array_shift($input));
+    $instructionsCount = count($instructions);
+    array_shift($input);
+    $matrix = [];
+    $total = 0;
+    $startNodes = [];
+    foreach ($input as $row) {
+        preg_match_all('/[A-Z0-9]+/', $row, $matches);
+        $resultSet = reset($matches);
+        $matrix[$resultSet[0]] = ['L' => $resultSet[1], 'R' => $resultSet[2]];
+        if (preg_match('/[A-Z0-9]{2}A/', $resultSet[0], $match1)) {
+            $startNodes[] = $resultSet[0];
+        }
+    }
+
+//    $key = 'AAA';
+    $i = 0;
+    $steps = 0;
+//    while($key != 'ZZZ') {
+    $visitedEndNode = [];
+    $visitedSteps = [];
+    $startNodesAmount = count($startNodes);
+    while (count($visitedEndNode) < $startNodesAmount) {
+        $instruction = $instructions[$i];
+        $steps++;
+        foreach ($startNodes as &$startNode) {
+            $startNode = $matrix[$startNode][$instruction];
+            if (!(preg_match('/[?^Z]/', $startNode, $match) === 0)) {
+                $node = [$startNode, $steps];
+                if (!in_array($startNode, $visitedEndNode)) {
+                    $visitedEndNode[] = $startNode;
+                    $visitedSteps[] = $steps;
+                }
+            }
+        }
+//        $key = $matrix[$key][$instruction];
+        $i = ($i + 1) % $instructionsCount;
+        $total++;
+    }
+    $lcm = array_pop($visitedSteps);
+    while ($number = array_pop($visitedSteps)) {
+        $lcm = lcm($lcm, $number);
+    }
+
+    return $lcm;
+//    return $total;
+}
+
+function lcm(int $number1, int $number2)
+{
+    $a = max($number1, $number2);
+    $b = min($number1, $number2);
+    while ($a !== 0) {
+        $gcd = $a;
+        $a = $b % $a;
+        $b = $gcd;
+    }
+    return abs($number1 * $number2) / $gcd;
+}
+
 //echo day1();
 //echo day2();
 //echo day3();
 //echo day4();
 //echo day5();
 //echo day6();
-echo day7();
+//echo day7();
+echo day8();
