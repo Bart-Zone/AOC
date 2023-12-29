@@ -635,6 +635,52 @@ function lcm(int $number1, int $number2)
     return abs($number1 * $number2) / $gcd;
 }
 
+function day9()
+{
+    $input = getFileContent('09');
+    $total = 0;
+    foreach ($input as $row) {
+        preg_match_all('/-?[0-9]+/', $row, $matches);
+        $numbers = reset($matches);
+        $currentRow = $numbers;
+        $matrix = [];
+        $matrix[] = $currentRow;
+        while (1 < count(array_unique($currentRow))) {
+            $currentRow = getNextRow($currentRow);
+            $matrix[] = $currentRow;
+        }
+        $revMatrix = array_reverse($matrix);
+        $history = current($revMatrix);
+        while ($nextRow = next($revMatrix)) {
+            $nextRowKey = key($revMatrix);
+//            $revHistory = array_reverse($history);
+            $revHistory = $history;
+            $currentVal = $revHistory[0];
+//            $rowBeforeVal = end($nextRow);
+            $rowBeforeVal = reset($nextRow);
+
+//            $revMatrix[$nextRowKey][] = $currentVal + $rowBeforeVal;
+            array_unshift($revMatrix[$nextRowKey], $rowBeforeVal - $currentVal);
+            $history = current($revMatrix);
+        }
+//        $total += end($history);
+        $total += reset($history);
+    }
+    return $total;
+}
+
+function getNextRow(array $numbers): array
+{
+    $first = array_shift($numbers);
+    $nextRow = [];
+    foreach ($numbers as $number) {
+        $nextRow[] = $number - $first;
+        $first = $number;
+    }
+
+    return $nextRow;
+}
+
 //echo day1();
 //echo day2();
 //echo day3();
@@ -642,4 +688,5 @@ function lcm(int $number1, int $number2)
 //echo day5();
 //echo day6();
 //echo day7();
-echo day8();
+//echo day8();
+echo day9();
