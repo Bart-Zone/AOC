@@ -31,7 +31,11 @@ function day2()
         preg_match('/[0-9]+/', $row, $result);
         $gameId = (int)reset($result);
         $cubes = explode(':', $row);
-        preg_match('/[2-9]{1}[0-9]+|[0-9]{3,}|[1]{1}[3-9]{1}\\sred|[1]{1}[4-9]{1}\\sgreen|[1]{1}[5-9]{1}\\sblue/', $cubes[1], $cubes);
+        preg_match(
+            '/[2-9]{1}[0-9]+|[0-9]{3,}|[1]{1}[3-9]{1}\\sred|[1]{1}[4-9]{1}\\sgreen|[1]{1}[5-9]{1}\\sblue/',
+            $cubes[1],
+            $cubes
+        );
         preg_match_all('/[0-9]+\sred|[0-9]+\sgreen|[0-9]+\sblue/', $row, $fewestCubes);
         $allCubes = reset($fewestCubes);
         $maxFewest = [];
@@ -97,8 +101,9 @@ function day3()
 
 function checkNumberTouchingSymbol(array $allNumbers, array $symbols, &$result)
 {
-    if (empty($symbols))
+    if (empty($symbols)) {
         return $allNumbers;
+    }
 
     $uncheckedNumbers = $allNumbers;
     foreach ($allNumbers as $key => $numbersSet) {
@@ -154,9 +159,10 @@ function checkIfIsGear(array $gears, array $prevRow, array $currentRow, array $n
     return $total;
 }
 
-function day4() {
+function day4()
+{
     $input = getFileContent('04');
-$total = 0;
+    $total = 0;
     foreach ($input as $row) {
         [$cardNumber, $cards] = explode(':', $row);
         [$winningCardsSets, $myCardsSets] = explode('|', $cards);
