@@ -879,6 +879,43 @@ function calcManhattanDistance(array $firstP, array $secondP)
     return ($y1 - $y2) + ($x1 - $x2);
 }
 
+function day12()
+{
+    $input = getFileContent('12');
+
+    foreach ($input as $row) {
+        preg_match_all('/[.\?#]+|\\d/', $row, $matches);
+        $criteria = reset($matches);
+        $springs = array_shift($criteria);
+        $springsLength = strlen($springs);
+        $criteriaCount = count($criteria);
+        $criteriaSum = array_sum($criteria) + $criteriaCount - 1;
+        if ($criteriaSum === $springsLength) {
+            $sum++;
+        } elseif ($springsLength > $criteriaSum) {
+            $diff = $springsLength - $criteriaSum;
+            $dotCount = substr_count($springs, '.');
+            $groups = array_values(array_filter(explode('.', $springs)));
+            if (count($groups) === $criteriaCount) {
+                foreach ($groups as $key => $group) {
+                    $groupLength = strlen($group);
+                    if (strpos($group, '#') === false) {
+                        $sum += $groupLength * $criteria[$key];
+                    } else {
+                        if ($groupLength === $criteriaCount) {
+                            // dont add possibility
+                        } else {
+                            $hashCount = substr_count($group, '#');
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return "Only a try, no result";
+}
+
 //echo day1();
 //echo day2();
 //echo day3();
@@ -889,4 +926,5 @@ function calcManhattanDistance(array $firstP, array $secondP)
 //echo day8();
 //echo day9();
 //echo day10();
-echo day11();
+//echo day11();
+echo day12();
