@@ -808,6 +808,77 @@ function getNextCell($currentCell): array
     return ['x' => $x, 'y' => $y, 'prev' => $currentCell];
 }
 
+function day11()
+{
+    $input = getFileContent('11');
+
+    $planets = [];
+    $result = 0;
+    $matrix = $input;
+    $matrixWidth = strlen($input[0]);
+    $i = 0;
+    $columns = [];
+    $expansionSize = 999999;
+    $rowsForExpand = [];
+    $rowsWithPlanet = [];
+    foreach ($input as $y => $row) {
+        preg_match_all('/#/', $row, $matches, PREG_OFFSET_CAPTURE);
+        $matches = reset($matches);
+        if (empty($matches)) {
+            $rowsForExpand[] = $y;
+        } else {
+            $rowsWithPlanet[] = $y;
+        }
+
+        for ($k = 0; $k < $matrixWidth; $k++) {
+            $columns[$k] .= $row[$k];
+        }
+    }
+    foreach ($columns as $x => $column) {
+        preg_match_all('/#/', $column, $matches, PREG_OFFSET_CAPTURE);
+        $matches = reset($matches);
+        if (empty($matches)) {
+            foreach ($matrix as &$row) {
+                $row = substr_replace($row, str_repeat('.', $expansionSize), $x + $i, 0);
+            }
+            $i += $expansionSize;
+        }
+    }
+    $diff = 0;
+    foreach ($rowsWithPlanet as $space) {
+        preg_match_all('/#/', $matrix[$space], $matches, PREG_OFFSET_CAPTURE);
+        $matches = reset($matches);
+        $newSpace = $space + $diff;
+        if (!empty($rowsForExpand && $space >= min($rowsForExpand))) {
+            $diff += $expansionSize;
+            $newSpace += $expansionSize;
+            array_shift($rowsForExpand);
+        }
+        foreach ($matches as $planet) {
+            $planets[] = ['y' => $newSpace, 'x' => $planet[1]];
+        }
+    }
+
+    while ($fPlanet = array_shift($planets)) {
+        foreach ($planets as $planet) {
+            $zwischenDis = calcManhattanDistance($fPlanet, $planet);
+            $result += $zwischenDis;
+        }
+    }
+
+    return $result;
+}
+
+function calcManhattanDistance(array $firstP, array $secondP)
+{
+    $y1 = max($secondP['y'], $firstP['y']);
+    $y2 = min($secondP['y'], $firstP['y']);
+    $x1 = max($secondP['x'], $firstP['x']);
+    $x2 = min($secondP['x'], $firstP['x']);
+
+    return ($y1 - $y2) + ($x1 - $x2);
+}
+
 //echo day1();
 //echo day2();
 //echo day3();
@@ -817,4 +888,5 @@ function getNextCell($currentCell): array
 //echo day7();
 //echo day8();
 //echo day9();
-echo day10();
+//echo day10();
+echo day11();
