@@ -1044,27 +1044,6 @@ function day14()
     return calcWeight($caMatrix[$searchIndex]);
 }
 
-function day15()
-{
-    $input = getFileContent('15');
-    $rows = explode(',', reset($input));
-    $multiplier = 17;
-    $divisor = 256;
-    $total = 0;
-    foreach ($rows as $row) {
-        $currentValue = 0;
-        $chars = str_split($row);
-        foreach ($chars as $char) {
-            $currentValue += ord($char);
-            $currentValue *= $multiplier;
-            $currentValue %= $divisor;
-        }
-        $total += $currentValue;
-    }
-
-    return $total;
-}
-
 function tilt(array $input)
 {
     $stringInput = implode('', $input);
@@ -1100,6 +1079,66 @@ function calcWeight(array $matrix)
     }
 
     return $sum;
+}
+
+function day15()
+{
+    $input = getFileContent('15');
+    $rows = explode(',', reset($input));
+
+    $total = 0;
+    $container = [];
+    foreach ($rows as $row) {
+        preg_match('/[a-z]+/', $row, $boxMatches);
+        preg_match('/-|=/', $row, $operatorMatches);
+        preg_match('/\d/', $row, $lensMatches);
+        $box = reset($boxMatches);
+        $operator = reset($operatorMatches);
+        $lens = reset($lensMatches);
+        $boxIndex = getHash($box);
+        if (isset($container[$boxIndex])) {
+            $currentBox = $container[$boxIndex];
+//            $boxesInside = array_column($currentBox, 'label');
+            if (isset($currentBox[$box]) && $operator === '=') {
+                $currentBox[$box]['lens'] = $lens;
+            } elseif ($operator === '=') {
+                $sortColumn = array_column($currentBox, 'sort');
+                $sort = max($sortColumn) + 1;
+                $currentBox[$box] = ['label' => $box, 'lens' => $lens, 'sort' => $sort];
+            } elseif (isset($currentBox[$box])) {
+                unset($currentBox[$box]);
+            }
+            $container[$boxIndex] = $currentBox;
+        } elseif ($operator === '=') {
+            $container[$boxIndex][$box] = ['label' => $box, 'lens' => $lens, 'sort' => 1];
+        }
+    }
+
+    foreach ($container as $boxNumber => $boxes) {
+        $multiplier = $boxNumber + 1;
+        $sortedBox = array_values(array_column($boxes, 'lens', 'sort'));
+
+        foreach ($sortedBox as $sortNumber => $lens) {
+            $total += $multiplier * ($sortNumber + 1) * $lens;
+        }
+    }
+
+    return $total;
+}
+
+function getHash(string $string)
+{
+    $multiplier = 17;
+    $divisor = 256;
+    $currentValue = 0;
+    $chars = str_split($string);
+    foreach ($chars as $char) {
+        $currentValue += ord($char);
+        $currentValue *= $multiplier;
+        $currentValue %= $divisor;
+    }
+
+    return $currentValue;
 }
 
 //echo day1();
