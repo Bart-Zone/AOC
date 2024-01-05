@@ -1098,7 +1098,6 @@ function day15()
         $boxIndex = getHash($box);
         if (isset($container[$boxIndex])) {
             $currentBox = $container[$boxIndex];
-//            $boxesInside = array_column($currentBox, 'label');
             if (isset($currentBox[$box]) && $operator === '=') {
                 $currentBox[$box]['lens'] = $lens;
             } elseif ($operator === '=') {
