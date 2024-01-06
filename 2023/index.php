@@ -1140,6 +1140,141 @@ function getHash(string $string)
     return $currentValue;
 }
 
+function day16()
+{
+    $input = getFileContent('16');
+    $result = [0];
+    $directions = [
+        'y' => [
+            '<' => 0,
+            '>' => 0,
+            'v' => 1,
+            '^' => -1
+        ],
+        'x' => [
+            '<' => -1,
+            '>' => 1,
+            'v' => 0,
+            '^' => 0
+        ]
+    ];
+
+    $modification = [
+        '-' => [
+            '<' => [[0, -1]],
+            '>' => [[0, 1]],
+            'v' => [[0, -1], [0, 1]],
+            '^' => [[0, -1], [0, 1]]
+        ],
+        '|' => [
+            '<' => [[1, 0], [-1, 0]],
+            '>' => [[1, 0], [-1, 0]],
+            'v' => [[1, 0]],
+            '^' => [[-1, 0]]
+        ],
+        '\\' => [
+            '<' => [[-1, 0]],
+            '>' => [[1, 0]],
+            'v' => [[0, 1]],
+            '^' => [[0, -1]]
+        ],
+        '/' => [
+            '<' => [[1, 0]],
+            '>' => [[-1, 0]],
+            'v' => [[0, -1]],
+            '^' => [[0, 1]]
+        ]
+    ];
+
+    $dirMap = [
+        '-' => [
+            '<' => ['<'],
+            '>' => ['>'],
+            'v' => ['<', '>'],
+            '^' => ['<', '>']
+        ],
+        '|' => [
+            '<' => ['v', '^',],
+            '>' => ['v', '^'],
+            'v' => ['v'],
+            '^' => ['^']
+        ],
+        '\\' => [
+            '<' => ['^'],
+            '>' => ['v'],
+            'v' => ['>'],
+            '^' => ['<']
+        ],
+        '/' => [
+            '<' => ['v'],
+            '>' => ['^'],
+            'v' => ['<'],
+            '^' => ['>']
+        ]
+    ];
+
+    $matrix = [];
+    foreach ($input as $row) {
+        $matrix[] = str_split($row);
+    }
+
+    $matrixWidth = count($matrix[0]);
+    $matrixHeight = count($matrix);
+    $startingPoints = [];
+    for ($i = 0; $i < $matrixHeight; $i++) {
+        $startingPoints[] = [0, $i, 'v'];
+        $startingPoints[] = [$matrixHeight - 1, $i, '^'];
+    }
+
+    for ($i = 0; $i < $matrixHeight; $i++) {
+        $startingPoints[] = [$i, 0, '>'];
+        $startingPoints[] = [$i, $matrixWidth - 1, '<'];
+    }
+
+    foreach ($startingPoints as $startingPoint) {
+        $beams[] = $startingPoint;
+        $resultMatrix = $matrix;
+        $visitedMatrix = $matrix;
+        while ($beam = array_pop($beams)) {
+            $y = $beam[0];
+            $x = $beam[1];
+            $dir = $beam[2];
+            $resultMatrix[$y][$x] = '#';
+            if ($visitedMatrix[$y][$x] == $dir) {
+                continue;
+            }
+            $cell = $matrix[$y][$x];
+            if ($cell === '.') {
+                $visitedMatrix[$y][$x] = $dir;
+                $newY = $y + $directions['y'][$dir];
+                $newX = $x + $directions['x'][$dir];
+                if (isset($matrix[$newY][$newX])) {
+                    $beams[] = [$newY, $newX, $dir];
+                }
+            } elseif (array_key_exists($cell, $modification)) {
+                $newDirs = $dirMap[$cell][$dir];
+
+                foreach ($modification[$cell][$dir] as $key => $directionCoords) {
+                    $newY = $y + $directionCoords[0];
+                    $newX = $x + $directionCoords[1];
+                    if (isset($matrix[$newY][$newX])) {
+                        $beams[] = [$newY, $newX, $newDirs[$key]];
+                    }
+                }
+            }
+        }
+        $partResult = 0;
+        foreach ($resultMatrix as $row) {
+            $partResult += substr_count(implode('', $row), '#');
+        }
+        $result[] = $partResult;
+    }
+
+    sort($result);
+
+    return array_pop($result);
+}
+
 //echo day1();
 //echo day2();
 //echo day3();
@@ -1154,4 +1289,5 @@ function getHash(string $string)
 //echo day12();
 //echo day13();
 //echo day14();
-echo day15();
+//echo day15();
+echo day16();
