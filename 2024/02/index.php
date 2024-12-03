@@ -12,13 +12,40 @@ function part01()
 {
     $input = getFileContent('input');
     $example = getFileContent('example');
-
-    foreach ($example as $report) {
+    $safeResult = 0;
+    foreach ($input as $report) {
         $levels = explode(' ', $report);
-        $safe = true;
-        $firstLevel = array_slice($levels, 0, 1);
-        foreach ($levels as $level) {
-//            if (abs($previousLevel )
+        $originLevel = $levels;
+        $tryLevels = [$levels];
+        while ($levels = array_pop($tryLevels)) {
+            $previousLevel = array_shift($levels);
+            $previousDiff = 0;
+            $retry = true;
+            foreach ($levels as $key => $level) {
+                $diff = (int)$previousLevel - (int)$level;
+                $increase = $diff * $previousDiff;
+                $previousDiff = $diff;
+                $absDiff = abs($diff);
+                $previousLevel = $level;
+                if ($absDiff < 1 || $absDiff > 3 || $increase < 0 && !$re  try) {
+                    $firstPossibility = $originLevel;
+                    $secondPossibility = $originLevel;
+                    unset($firstPossibility[$key]);
+                    unset($secondPossibility[$key + 1]);
+                    reset($firstPossibility);
+                    reset($secondPossibility);
+                    $tryLevels[] = $firstPossibility;
+                    $tryLevels[] = $secondPossibility;
+                    $retry = true;
+                    continue 2;
+                } elseif ($retry) {
+                    continue 3;
+                }
+            }
+
         }
+        $safeResult++;
     }
+
+    echo $safeResult;
 }
