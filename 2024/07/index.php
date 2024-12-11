@@ -10,42 +10,72 @@ if (isset($_GET['part']) && $_GET['part'] == '2') {
 
 function part01()
 {
-    $input = getFileContent('input');
+    $input2 = getFileContent('input');
     $example = getFileContent('example');
-
-    $operators = ['+', '*', '||'];
+    $input = $input2;
+    $operators = ['+', '*'];
     $permutations = generatePermutations($operators, 12);
     $correctEquation = 0;
-    foreach ($input as $line) {
+    $incorrectEquations = [];
+    $maxCount = 0;
+    foreach ($input2 as $lineNumber => $line) {
         [$result, $params] = explode(':', $line);
         preg_match_all('/\d+/', $params, $paramMatches);
         $parameter = reset($paramMatches);
-
-        foreach ($permutations as $permuation) {
-            $permResult = 0;
+        foreach ($permutations as $permutation) {
             $tmpResult = $parameter[0];
+
             $positions = count($parameter);
-            for($i = 0; $i<$positions; $i++) {
-                switch ($permuation[$i]) {
+            $maxCount = max($maxCount, $positions);
+            for ($i = 0; $i < $positions - 1 ; $i++) {
+                switch ($permutation[$i]) {
                     case '+':
                         $tmpResult += $parameter[$i + 1];
                         break;
                     case '*':
                         $tmpResult *= $parameter[$i + 1];
                         break;
-                    case '|':
-                        $tmpResult = intval($tmpResult . $parameter[$i + 1]);
                 }
-                $permResult += $tmpResult;
             }
             if ($tmpResult == $result) {
-                $correctEquation += $result;
+                $correctEquation += intval($result);
+                unset($input[$lineNumber]);
                 continue 2;
             }
         }
     }
 
-    echo $correctEquation;
+    $correctEquation2 = 0;
+    $operators = ['+', '*', '||'];
+    $permutations = generatePermutations($operators, $maxCount);
+    foreach ($input as $line) {
+        [$result, $params] = explode(':', $line);
+        preg_match_all('/\d+/', $params, $paramMatches);
+        $parameter = reset($paramMatches);
+
+        foreach ($permutations as $permutation) {
+            $tmpResult = $parameter[0];
+            $positions = count($parameter) - 1;
+            for ($i = 0; $i < $positions; $i++) {
+                switch ($permutation[$i]) {
+                    case '+':
+                        $tmpResult += $parameter[$i + 1];
+                        break;
+                    case '*':
+                        $tmpResult *= $parameter[$i + 1];
+                        break;
+                    case '||':
+                        $tmpResult = intval($tmpResult . $parameter[$i + 1]);
+                }
+            }
+            if ($tmpResult == $result) {
+                $correctEquation2 += intval($result);
+                continue 2;
+            }
+        }
+    }
+
+    echo $correctEquation + $correctEquation2;
 }
 
 function part02()
@@ -54,7 +84,8 @@ function part02()
     $example = getFileContent('example');
 }
 
-function generatePermutations($inputArray, $positions) {
+function generatePermutations($inputArray, $positions)
+{
     $result = [];
     $count = count($inputArray);
 
